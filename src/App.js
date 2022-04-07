@@ -1,7 +1,7 @@
 
 import './App.css';
 import app from './firebase.init';
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, signInWithEmailAndPassword } from "firebase/auth";
 import Form from 'react-bootstrap/Form'
 import { Button } from 'react-bootstrap';
 import { useState } from 'react';
@@ -38,15 +38,25 @@ const [password,setPassword]=useState('')
     setError('');
 
     if (registered) {
-      
+      console.log(email,password)
+      signInWithEmailAndPassword(auth,email,password)
+        .then(result => {
+          const user = result.user;
+          console.log(user)
+        })
+        .catch(error => {
+          console.error(error)
+          setError(error.message)
+      })
     }
     else {
       createUserWithEmailAndPassword(auth,email,password)
       .then(result => {
         const user = result.user;
         console.log(user)
-        setEmail('')
-        setPassword('')
+        setEmail('');
+        setPassword('');
+        verifyEmail()
     })
       .catch(error => {
         console.error(error)
@@ -56,6 +66,12 @@ const [password,setPassword]=useState('')
 
     
     event.preventDefault()
+  }
+  const verifyEmail = () => {
+    sendEmailVerification(auth.currentUser)
+      .then(() => {
+      console.log('Email Verification send')
+    })
   }
   return (
     <div>
